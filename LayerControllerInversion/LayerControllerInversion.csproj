@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LayerBusiness\LayerBusiness.csproj" />
+    <ProjectReference Include="..\LayerDataBase\LayerDataBase.csproj" />
+  </ItemGroup>
+
 </Project>

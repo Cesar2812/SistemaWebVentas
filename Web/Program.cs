@@ -1,7 +1,12 @@
+using LayerControllerInversion;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.DependencyInyection(builder.Configuration);//configuracion a la capa de inyeccion
+
 
 var app = builder.Build();
 
