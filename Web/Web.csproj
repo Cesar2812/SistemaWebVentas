@@ -1,9 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LayerBusiness\LayerBusiness.csproj" />
+    <ProjectReference Include="..\LayerControllerInversion\LayerControllerInversion.csproj" />
+    <ProjectReference Include="..\LayerEntity\LayerEntity.csproj" />
+  </ItemGroup>
 
 </Project>
