@@ -1,1 +1,1 @@
-Sistema De Ventas Web
+Sistema De Ventas Web: Este Pequeño prototipo MVP, esta orientado a la gestion del proceso de Ventas en una Tienda de Dispositivos Electronicos,controlando de una manera basica y sencilla el stock de prdocutos en la tienda, por otro lado, la visualizacion de reportes en un rango de fechas, generacion de documentos de ventas y la visualizacion de Dasboards y top de productos. Este proyecto tiene como plus el uso de Web Services de Firebase De Google en la nube para el almacenamiento de imagenes.
