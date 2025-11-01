@@ -21,7 +21,7 @@ public static class Dependency
         services.AddDbContext<VentaContext>(optionsAction =>
         {
             optionsAction.UseSqlServer(configuration.GetConnectionString("CadenaSQL"));//cadena de conexion a EF
-        });
+        });  
 
     }
 
