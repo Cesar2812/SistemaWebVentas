@@ -5,6 +5,13 @@ namespace LayerEntity;
 
 public partial class Rol
 {
+
+    public Rol()
+    {
+        RolMenus = new HashSet<RolMenu>();
+        Usuarios = new HashSet<Usuario>();
+    }
+
     public int IdRol { get; set; }
 
     public string? Descripcion { get; set; }
