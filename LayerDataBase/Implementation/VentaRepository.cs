@@ -28,7 +28,7 @@ namespace LayerDataBase.Implementation
                 try
                 {
                     //iterando sobre los prudctos del detalle
-                    foreach (DetalleVenta dv in entity.DetalleVenta)//mediante el forEach se recorre sobre la entidad de la base de datos
+                    foreach (DetalleVenta dv in entity.DetalleVenta)//mediante el forEach se recorre sobre la entidad  que se pasa como parametro
                     {
                         Producto productFound = _dbVentaContext.Productos.Where(p => p.IdProducto == dv.IdProducto).First();
                         productFound.Stock = productFound.Stock - dv.Cantidad;

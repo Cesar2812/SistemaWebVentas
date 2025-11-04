@@ -1,47 +1,83 @@
 ﻿using Firebase.Auth;
+using Firebase.Storage;
 using LayerBusiness.Interface;
 using LayerDataBase.Interface;
 using LayerEntity;
 
-namespace LayerBusiness.Implementation
+
+
+
+namespace LayerBusiness.Implementation;
+
+
+public class FireBaseService:IFireBaseService
 {
-    public class FireBaseService:IFireBaseService
+
+    private readonly IGenericRepository<Configuracion> _repository;
+
+    public FireBaseService(IGenericRepository<Configuracion> repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<string> LoadStorage(Stream streamFile, string destinationFolder, string fileName)
     {
 
-        private readonly IGenericRepository<Configuracion> _repository;
+        string urlImage = "";
 
-        public FireBaseService(IGenericRepository<Configuracion> repository)
+        try
         {
-            _repository = repository;
+
+            IQueryable<Configuracion> query = await _repository.Consult(c => c.Recurso.Equals("FireBase_Storage"));
+            Dictionary<string, string> config = query.ToDictionary(keySelector: c => c.Propiedad, elementSelector: c => c.Valor);
+
+            var auth = new FirebaseAuthProvider(new FirebaseConfig(config["api_key"]));
+            var a = await auth.SignInWithEmailAndPasswordAsync(config["email"], config["clave"]);
+
+            //token de cancelacion
+            var cancellation= new CancellationTokenSource();
+
+            var task = new FirebaseStorage(
+
+                config["ruta"],
+                new FirebaseStorageOptions
+                {
+                    AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                    ThrowOnCancel = true //si ocurre error cancela
+                }
+            ).Child(config[destinationFolder]).Child(config[fileName]).PutAsync(streamFile, cancellation.Token);
+
+            urlImage = await task;
         }
-
-        public async Task<string> LoadStorage(Stream streamFile, string destinationFolder, string fileName)
+        catch
         {
+            urlImage = "";
+        }
+        return urlImage;
+    }
 
-            string urlImage = "";
+    public async Task<bool> DeleteStorage(string destinationFolder, string fileName)
+    {
+        IQueryable<Configuracion> query = await _repository.Consult(c => c.Recurso.Equals("FireBase_Storage"));
+        Dictionary<string, string> config = query.ToDictionary(keySelector: c => c.Propiedad, elementSelector: c => c.Valor);
 
-            try
+        var auth = new FirebaseAuthProvider(new FirebaseConfig(config["api_key"]));
+        var a = await auth.SignInWithEmailAndPasswordAsync(config["email"], config["clave"]);
+
+        //token de cancelacion
+        var cancellation = new CancellationTokenSource();
+
+        var task = new FirebaseStorage(
+
+            config["ruta"],
+            new FirebaseStorageOptions
             {
-
-                IQueryable<Configuracion> query = await _repository.Consult(c => c.Recurso.Equals("FireBase_Storage"));
-                Dictionary<string, string> config = query.ToDictionary(keySelector: c => c.Propiedad, elementSelector: c => c.Valor);
-
-                var auth = new FirebaseAuthProvider(new FirebaseConfig(config["api_key"]));
-                var a = await auth.SignInWithEmailAndPasswordAsync(config["email"], config["clave"]);
-
+                AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+                ThrowOnCancel = true //si ocurre error cancela
             }
-            catch
-            {
+        ).Child(config[destinationFolder]).Child(config[fileName]).DeleteAsync();
 
-            }
-
-        }
-
-        public Task<string> DeleteStorage(string destinationFolder, string fileName)
-        {
-            throw new NotImplementedException();
-        }
-
-
+        await task;
+        return true;
     }
 }

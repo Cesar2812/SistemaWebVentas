@@ -9,6 +9,6 @@ namespace LayerBusiness.Interface
     public interface IFireBaseService
     {
         Task<string> LoadStorage(Stream streamFile, string destinationFolder, string fileName);
-        Task<string> DeleteStorage(string destinationFolder, string fileName);
+        Task<bool> DeleteStorage(string destinationFolder, string fileName);
     }
 }

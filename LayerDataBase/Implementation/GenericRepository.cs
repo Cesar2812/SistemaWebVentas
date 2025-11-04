@@ -1,18 +1,12 @@
 ﻿using LayerDataBase.Interface;
 using LayerEntity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace LayerDataBase.Implementation;
 
 public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
-
     private readonly VentaContext _dbVentaContext;
 
     public GenericRepository(VentaContext dbVentaContext)
@@ -20,11 +14,12 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbVentaContext = dbVentaContext;
     }
 
+    
     public async Task<TEntity> Get(Expression<Func<TEntity, bool>> filter)
     {
         try
         {
-            TEntity entity = await _dbVentaContext.Set<TEntity>().FirstOrDefaultAsync(filter);
+            TEntity entity = await _dbVentaContext.Set<TEntity>().FirstOrDefaultAsync(filter);//linq para filtrar
             return entity;
         }
         catch
