@@ -39,6 +39,7 @@ public class CorreoService:ICorreoService
             {
                 Host= config["host"],//servidor de correo de Gmail desde donde se envia
                 Port= Convert.ToInt32(config["puerto"]),
+                Credentials= credentials,
                 DeliveryMethod=SmtpDeliveryMethod.Network, //por red
                 UseDefaultCredentials=false,
                 EnableSsl=true,// en https
