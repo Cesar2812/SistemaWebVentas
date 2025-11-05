@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using LayerBusiness.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using LayerEntity;
-using LayerDataBase;
+
 using LayerDataBase.Interface;
 
 namespace LayerBusiness.Implementation;
@@ -182,42 +178,144 @@ public class UsuarioService : IUsuarioService
         }
     }
 
-
-    public Task<Usuario> GetById(int idUsuario)
+    public async Task<Usuario> GetByCredentials(string email, string pass)
     {
-        throw new NotImplementedException();
+        string clave_encriptada = _utilitiesService.ConvertSha256(pass);
+        Usuario usuarioEncontrado = await _repository.Get(u => u.Correo.Equals(email) && u.Clave.Equals(clave_encriptada));
+
+        return usuarioEncontrado;
+    }
+
+
+    public async Task<Usuario> GetById(int idUsuario)
+    {
+        IQueryable<Usuario> query = await _repository.Consult(u => u.IdUsuario == idUsuario);
+
+        Usuario resultado = query.Include(r => r.IdRolNavigation).FirstOrDefault();
+
+        return resultado;
+    }
+
+
+    public async Task<bool> SaveProfile(Usuario entityUser)
+    {
+        try
+        {
+            Usuario usuarioEncontrado = await _repository.Get(u => u.IdUsuario == entityUser.IdUsuario);
+
+            if (usuarioEncontrado == null)
+            {
+                throw new TaskCanceledException("No se encontro el Usuario");
+            }
+
+            usuarioEncontrado.Correo= entityUser.Correo;
+            usuarioEncontrado.Telefono= entityUser.Telefono;
+            bool respuesta =await _repository.Update(usuarioEncontrado);
+            
+            return respuesta;
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+
+
+    public async Task<bool> ChangePass(int idUsuario, string pass, string newPass)
+    {
+        try
+        {
+            Usuario usuarioEncontrrado = await _repository.Get(u => u.IdUsuario == idUsuario);
+
+            if (usuarioEncontrrado == null)
+            {
+                throw new TaskCanceledException("No se encontro el Usuario");
+            }
+
+            if(usuarioEncontrrado.Clave!= _utilitiesService.ConvertSha256(pass))
+            {
+                throw new TaskCanceledException("La contrasena ingresada como actual no es correcta");
+            }
+            usuarioEncontrrado.Clave= _utilitiesService.ConvertSha256(newPass);
+
+            bool respuesta= await _repository.Update(usuarioEncontrrado);
+
+            return respuesta;
+        }
+        catch
+        {
+            throw;
+
+        }
     }
 
    
-
-
-    
-
-
-    public Task<bool> ChangePass(int idUsuario, string pass, string newPass)
-    {
-        throw new NotImplementedException();
-    }
-
    
-    public Task<Usuario> GetByCredentials(string email, string pass)
+    public async Task<bool> RestorePass(string email, string urlPlantillaCorreo)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            Usuario usuarioEncontrado = await _repository.Get(u => u.Correo == email);
+
+            if (usuarioEncontrado == null)
+            {
+                throw new TaskCanceledException("El correo es incorrecto");
+            }
+
+            string clavegenerada = _utilitiesService.GeneratePassword();
+
+            usuarioEncontrado.Clave = _utilitiesService.ConvertSha256(clavegenerada);
 
 
-    public Task<bool> SaveProfile(Usuario entityUser)
-    {
-        throw new NotImplementedException();
-    }
+            urlPlantillaCorreo = urlPlantillaCorreo.Replace("[clave]", clavegenerada);//se remplaza en el body
 
+            string htmlCorreo = "";
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlPlantillaCorreo);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-    public Task<bool> RestorePass(string email, string urlPlantillaCorreo)
-    {
-        throw new NotImplementedException();
-    }
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader readerStream = null;
 
-    
+                    if (response.CharacterSet == null)
+                    {
+                        readerStream = new StreamReader(dataStream);
+                    }
+                    else
+                    {
+                        readerStream = new StreamReader(dataStream, Encoding.GetEncoding(response.CharacterSet));
+                    }
 
-    
+                    htmlCorreo = readerStream.ReadToEnd();//lee el header, el codigo y el body
+                    response.Close();
+                    readerStream.Close();
+                }
+            }
+
+            bool correo_enviado = false;
+
+            //se obtiene el html
+            if (htmlCorreo != "")
+            {
+                correo_enviado= await _correoService.SendEmail(email, "Clave Restablecida", htmlCorreo);
+
+            }
+
+            if (!correo_enviado)
+            {
+                throw new TaskCanceledException("No se envio el correo");
+            }
+
+            bool respuesta = await _repository.Update(usuarioEncontrado);
+
+            return respuesta;
+        }
+        catch
+        {
+            throw;
+        }
+    } 
 }
