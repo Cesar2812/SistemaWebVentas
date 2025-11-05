@@ -27,7 +27,7 @@ public partial class Venta
 
     public virtual ICollection<DetalleVenta> DetalleVenta { get; set; } = new List<DetalleVenta>();
 
-    public virtual TipoDocumentoVentum? IdTipoDocumentoVentaNavigation { get; set; }
+    public virtual TipoDocumentoVenta? IdTipoDocumentoVentaNavigation { get; set; }
 
     public virtual Usuario? IdUsuarioNavigation { get; set; }
 }

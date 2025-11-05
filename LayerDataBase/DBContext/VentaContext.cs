@@ -33,7 +33,7 @@ public partial class VentaContext : DbContext
 
     public virtual DbSet<RolMenu> RolMenus { get; set; }
 
-    public virtual DbSet<TipoDocumentoVentum> TipoDocumentoVenta { get; set; }
+    public virtual DbSet<TipoDocumentoVenta> TipoDocumentoVenta { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
@@ -302,7 +302,7 @@ public partial class VentaContext : DbContext
                 .HasConstraintName("FK__RolMenu__idRol__2B3F6F97");
         });
 
-        modelBuilder.Entity<TipoDocumentoVentum>(entity =>
+        modelBuilder.Entity<TipoDocumentoVenta>(entity =>
         {
             entity.HasKey(e => e.IdTipoDocumentoVenta).HasName("PK__TipoDocu__A9D59AEECE765DB5");
 

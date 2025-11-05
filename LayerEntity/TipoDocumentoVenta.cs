@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LayerEntity;
 
-public partial class TipoDocumentoVentum
+public partial class TipoDocumentoVenta
 {
     public int IdTipoDocumentoVenta { get; set; }
 

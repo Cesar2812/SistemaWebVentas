@@ -33,6 +33,8 @@ public static class Dependency
         services.AddScoped<IUtilitiesService, UtilitiesService>();
 
         services.AddScoped<IRoleService, RoleService>();
+
+        services.AddScoped<IUsuarioService, UsuarioService>();
     }
 
 }

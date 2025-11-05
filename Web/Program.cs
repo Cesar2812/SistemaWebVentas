@@ -1,3 +1,4 @@
+using Web.Utilities.AutoMapper;
 using LayerControllerInversion;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();//para poder realizar cambios en tiempo de ejecucion sin reiniciar el servidor
 builder.Services.DependencyInyection(builder.Configuration);//configuracion a la capa de inyeccion
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));//inyectando configuracion de mapeo
 
 
 var app = builder.Build();
