@@ -10,7 +10,7 @@ namespace LayerBusiness.Implementation;
 
 public class UsuarioService : IUsuarioService
 {
-    private readonly IGenericRepository<Usuario> _repository;
+    private readonly IGenericRepository<Usuario> _repository;//configurando la clase generica para usarse con usuario 
     private readonly IFireBaseService _fireBaseService;
     private readonly IUtilitiesService _utilitiesService;
     private readonly ICorreoService _correoService;
@@ -44,11 +44,11 @@ public class UsuarioService : IUsuarioService
             entityUser.Clave = _utilitiesService.ConvertSha256(passGenerate);
             entityUser.NombreFoto=namePhoto;
 
-            if (photo != null)//si se pasa la foto
-            {
-                string urlFoto = await _fireBaseService.LoadStorage(photo, "carpeta_usuario", namePhoto);
-                entityUser.UrlFoto=urlFoto;
-            }
+            //if (photo != null)//si se pasa la foto
+            //{
+            //    string urlFoto = await _fireBaseService.LoadStorage(photo, "carpeta_usuario", namePhoto);
+            //    entityUser.UrlFoto=urlFoto;
+            //}
 
             Usuario usuarioCreate= await _repository.Create(entityUser);
 
@@ -59,15 +59,15 @@ public class UsuarioService : IUsuarioService
 
             if (urlPlantillaCorreo != "")//osea se pasa la Url de la vista
             {
-                urlPlantillaCorreo = urlPlantillaCorreo.Replace("[correo]", usuarioCreate.Correo).Replace("[clave]", passGenerate);//se remplaza en el body
+                urlPlantillaCorreo = urlPlantillaCorreo.Replace("[correo]", usuarioCreate.Correo).Replace("[clave]", passGenerate);//se remplaza en el body de la palntilla
 
                 string htmlCorreo = "";
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlPlantillaCorreo);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlPlantillaCorreo);//peticion.mandado el recurso que es la plantilla
                 HttpWebResponse response=(HttpWebResponse)request.GetResponse();
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    using (Stream dataStream = response.GetResponseStream())
+                    using (Stream dataStream = response.GetResponseStream())//lector de flujo de datos o peticion 
                     {
                         StreamReader readerStream = null;
 
@@ -80,6 +80,7 @@ public class UsuarioService : IUsuarioService
                             readerStream= new StreamReader(dataStream,Encoding.GetEncoding(response.CharacterSet));
                         }
 
+                        //lector de correo electronico, osea lee los datos de flujo
                         htmlCorreo= readerStream.ReadToEnd();//lee el header, el codigo y el body
                         response.Close();
                         readerStream.Close();
@@ -89,14 +90,14 @@ public class UsuarioService : IUsuarioService
                 //se obtiene el html
                 if (htmlCorreo != "")
                 {
-                    await _correoService.SendEmail(usuarioCreate.Correo, "CuentaCreada", htmlCorreo);
+                    await _correoService.SendEmail(usuarioCreate.Correo, "CuentaCreada", htmlCorreo);//se envia el correo
 
                 }
             }
             IQueryable<Usuario> query = await _repository.Consult(u => u.IdUsuario == usuarioCreate.IdUsuario);
             usuarioCreate = query.Include(rol => rol.IdRolNavigation).First();
 
-            return usuarioCreate;
+            return usuarioCreate;//retorna el usuario creado con el rol que le pertenece
 
         }
         catch
@@ -121,18 +122,19 @@ public class UsuarioService : IUsuarioService
             usuario_Editar.Nombre=entityUser.Nombre;
             usuario_Editar.Correo= entityUser.Correo;
             usuario_Editar.IdRol = entityUser.IdRol;
+            usuario_Editar.EsActivo=entityUser.EsActivo;
 
             if (usuario_Editar.NombreFoto == "")
             {
                 usuario_Editar.NombreFoto = namePhoto;
             }
-            if(photo != null)
-            {
-                string url = await _fireBaseService.LoadStorage(photo, "carpeta_usuario", usuario_Editar.NombreFoto);
-                usuario_Editar.UrlFoto=url;
-            }
+            //if (photo != null)
+            //{
+            //    string url = await _fireBaseService.LoadStorage(photo, "carpeta_usuario", usuario_Editar.NombreFoto);
+            //    usuario_Editar.UrlFoto = url;
+            //}
 
-            bool respuesta = await _repository.Update(entityUser);
+            bool respuesta = await _repository.Update(usuario_Editar);
 
             if (!respuesta)
             {
@@ -165,10 +167,10 @@ public class UsuarioService : IUsuarioService
             string nombreFoto = usuarioEncontrado.NombreFoto;
             bool respuest = await _repository.Delete(usuarioEncontrado);
 
-            if (respuest)
-            {
-                await _fireBaseService.DeleteStorage("carpeta_usuario", nombreFoto);
-            }
+            //if (respuest)
+            //{
+            //    await _fireBaseService.DeleteStorage("carpeta_usuario", nombreFoto);
+            //}
 
             return true;
         }

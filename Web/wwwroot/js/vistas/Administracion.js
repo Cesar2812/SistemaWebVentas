@@ -3,18 +3,41 @@
 
 const MODELO_BASE =
 {
-    idUsuario=0,
-    nombre="",
-    correo="",
-    telefono="",
-    idRol=0,
-    esActivo=1,
-    urlFoto=""
+    idUsuario:0,
+    nombre:"",
+    correo:"",
+    telefono:"",
+    idRol:0,
+    esActivo:1,
+    urlFoto:""
 } 
 
 let tablaData;
 
 $(document).ready(function () {
+
+    fetch("/Administracion/ListRoles").then(response => {
+        return response.ok ? response.json() : Promise.reject(response)//si se devuelve la info retorna el json si no cancela la promesa
+    }).then(responseJson => {
+        //si existen elementos en el Json
+        if (responseJson.length>0)
+        {
+            $("<option>").attr({ "value": "0", "disabled": "true" }).text("Seleccione Uno").appendTo("#cboRol");
+            responseJson.forEach((item) => {
+                $("#cboRol").append(
+                    $("<option>").val(item.idRol).text(item.descripcion)
+                )
+
+            })
+            
+        }
+    })
+
+
+
+
+
+
     tablaData=$('#tbdata').DataTable({
         responsive: true,
          "ajax": {
@@ -27,7 +50,7 @@ $(document).ready(function () {
             {
                 "data": "urlFoto", render: function (data)
                 {
-                    return `<img style="heigth:60px" src=${data} class="rounded mx-auto d-block" />`
+                    return `<img style="height:60px" src=${data} class="rounded mx-auto d-block" />`
 
                 }
             },
@@ -38,22 +61,22 @@ $(document).ready(function () {
             {
                 "data": "esActivo", render: function (data) {
                     if (data == 1) {
-                        return '<span class="badge badge-info> Activo </span>';
+                        return '<span class="badge badge-info"> Activo </span>';
                     } else {
-                        return '<span class="badge badge-danger> No Activo </span>';
+                        return '<span class="badge badge-danger"> No Activo </span>';
                     }
 
                 }
             },
-             {
-                 "defaultContent": '<button class="btn btn-primary btn-editar btn-sm mr-2"><i class="fas fa-pencil-alt"></i></button>' +
-                     '<button class="btn btn-danger btn-eliminar btn-sm"><i class="fas fa-trash-alt"></i></button>',
-                 "orderable": false,
-                 "searchable": false,
-                 "width": "80px"
-             }
-         ],
-         order: [[0, "desc"]],
+            {
+                "defaultContent": '<button class="btn btn-primary btn-editar btn-sm mr-2"><i class="fas fa-pencil-alt"></i></button>' +
+                    '<button class="btn btn-danger btn-eliminar btn-sm"><i class="fas fa-trash-alt"></i></button>',
+                "orderable": false,
+                "searchable": false,
+                "width": "80px"
+            }
+        ],
+        order: [[0, "desc"]],
 
         dom: "Bfrtip",
         buttons: [
@@ -74,8 +97,199 @@ $(document).ready(function () {
 })
 
 
-//crearUsuario
 
-//editar Usuario
+
+//crearUsuario y Editar Usuario
+
+//valor por defecto si esta vacio el modelo
+function MostrarModal(modelo = MODELO_BASE)
+{
+        $("#txtId").val(modelo.idUsuario)
+        $("#txtNombre").val(modelo.nombre)
+        $("#txtCorreo").val(modelo.correo)
+        $("#txtTelefono").val(modelo.telefono),
+        $("#cboRol").val(modelo.idRol == 0 ? $("#cboRol option:first").val() : modelo.idRol)
+        $("#cboEstado").val(modelo.esActivo)
+        $("#txtFoto").val("")
+        $("#imgUsuario").attr("src",modelo.urlFoto)
+
+        $("#modalData").modal("show")
+}
+
+
+$("#btnNuevo").click(function () {
+    MostrarModal();
+})
+
+
+$("#btnGuardar").click(function ()
+{
+    //valdando campos
+    const inputs = $("input.input-validar").serializeArray();
+    const inputs_sin_valor = inputs.filter((item)=>item.value.trim() =="")
+
+    if (inputs_sin_valor.length > 0)
+    {
+        const mensaje = `Debe Completar el campo: "${inputs_sin_valor[0].name}"`;
+        toastr.options.timeOut = 1300;          // 1.5 segundos
+        toastr.options.extendedTimeOut = 500;
+        toastr.error("", mensaje)
+        $(`input[name="${inputs_sin_valor[0].name}"]`).focus();
+        return;
+    } 
+
+    //validando rol
+    const rolSeleccionado = $("#cboRol").val();
+
+    if (rolSeleccionado === "0" || rolSeleccionado === null) {
+        const mensaje = "Debe seleccionar un rol ";
+        toastr.options.timeOut = 1300;
+        toastr.options.extendedTimeOut = 500;
+        toastr.error("", mensaje);
+        $("#cboRol").focus();
+        return;
+    } 
+
+    //validando campo foto
+    const fotoInput = $("#txtFoto")[0];
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        const mensaje = "Debe seleccionar una foto";
+        toastr.options.timeOut = 1300;
+        toastr.options.extendedTimeOut = 500;
+        toastr.error("", mensaje);
+        $("#txtFoto").focus();
+        return;
+    }
+
+    const modelo = structuredClone(MODELO_BASE)//copiando el modelobase
+
+    modelo["idUsuario"] = parseInt($("#txtId").val())
+    modelo["nombre"] = $("#txtNombre").val()
+    modelo["correo"] = $("#txtCorreo").val()
+    modelo["telefono"] = $("#txtTelefono").val()
+    modelo["idRol"] = $("#cboRol").val()
+    modelo["esActivo"] = $("#cboEstado").val()
+
+    const inputFoto = document.getElementById("txtFoto")
+
+    const formData = new FormData();
+
+
+    formData.append("foto", inputFoto.files[0])//agregando la foto a la data
+    formData.append("model", JSON.stringify(modelo))
+
+    $("#modalData").find("div.modal-content").LoadingOverlay("show");
+
+    //creando un recurso 
+    if (modelo.idUsuario == 0) {
+        fetch("/Administracion/CreateUsers", {
+            method: "POST",
+            body: formData
+        }).then(response => {
+
+            $("#modalData").find("div.modal-content").LoadingOverlay("hide");
+            return response.ok ? response.json() : Promise.reject(response)//si se devuelve la respuesta retorna el json si no cancela la promesa
+        }).then(responseJson => {
+            if (responseJson.estado) {
+                tablaData.row.add(responseJson.objeto).draw(false)
+                $("#modalData").modal("hide")
+                swal("Listo!", "Usuario Creado", "success")
+            } else {
+                swal("Error!", responseJson.mensaje, "error")
+            }
+        })
+
+    } else
+    {
+        fetch("/Administracion/UpdateUsers", {
+            method: "PUT",
+            body: formData
+        }).then(response => {
+
+            $("#modalData").find("div.modal-content").LoadingOverlay("hide");
+            return response.ok ? response.json() : Promise.reject(response)//si se devuelve la respuesta retorna el json si no cancela la promesa
+        }).then(responseJson => {
+            if (responseJson.estado) {
+                tablaData.row(filaSeleccionada).data(responseJson.objeto).draw(false);
+                filaSeleccionada = null;
+                $("#modalData").modal("hide")
+                swal("Listo!", "Usuario Editado", "success")
+            } else {
+                swal("Error!", responseJson.mensaje, "error")
+            }
+        })
+
+    }
+    
+    
+})
+
+
+let filaSeleccionada;
+$("#tbdata tbody").on("click", ".btn-editar", function () {
+
+    if ($(this).closest("tr").hasClass("child")) {
+        filaSeleccionada = $(this).closest("tr").prev();
+
+    } else
+    {
+        filaSeleccionada = $(this).closest("tr");
+    } 
+
+    const data = tablaData.row(filaSeleccionada).data();
+
+    MostrarModal(data);
+
+
+}) 
+
 
 //eliminarUsuario
+$("#tbdata tbody").on("click", ".btn-eliminar", function () {
+    let fila;
+    if ($(this).closest("tr").hasClass("child")) {
+        fila = $(this).closest("tr").prev();
+
+    } else {
+        fila = $(this).closest("tr");
+    }
+
+    const data = tablaData.row(fila).data();
+
+    swal({
+        title: "Esta Seguro?",
+        text: `Eliminar al Usuario: ${data.nombre}`,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonClass: "btn-danger",
+        confirmButtonText: "Si,eliminar",
+        cancelButtonText: "No,Cancelar",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function (respuesta) {
+        if (respuesta == true) {
+            $(".showSweetAlert").LoadingOverlay("show");
+
+            fetch(`/Administracion/Delete?idUsuario=${data.idUsuario}`, {
+                method: "DELETE",
+            }).then(response => {
+
+                $(".showSweetAlert").LoadingOverlay("hide");
+                return response.ok ? response.json() : Promise.reject(response)//si se devuelve la respuesta retorna el json si no cancela la promesa
+            }).then(responseJson => {
+                if (responseJson.estado) {
+                    tablaData.row(fila).remove().draw()
+                  
+                    swal("Listo!", "Usuario Eliminado", "success")
+                } else {
+                    swal("Error!", responseJson.mensaje, "error")
+                }
+            })
+        }
+    }
+    )
+
+ 
+
+
+}) 

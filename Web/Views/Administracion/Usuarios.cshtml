@@ -19,7 +19,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-sm-3">
-                <button class="btn btn-success" data-toggle="modal" data-target="#modalData"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
+                <button class="btn btn-success" id="btnNuevo"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
             </div>
         </div>
         <hr />
@@ -28,6 +28,7 @@
                 <table class="table table-bordered" id="tbdata" cellspacing="0" style="width:100%">
                     <thead>
                         <tr>
+                            <th>Id</th>
                             <th>Foto</th>
                             <th>Nombre</th>
                             <th>Correo</th>
@@ -60,29 +61,35 @@
             <div class="modal-body">
                 <form>
                     <input type="hidden" value="0" id="txtId">
+
                     <div class="row">
                         <div class="col-sm-8">
                             <div class="form-row">
+
                                 <div class="form-group col-sm-6">
                                     <label for="txtNombre">Nombre</label>
                                     <input type="text" class="form-control form-control-sm input-validar" id="txtNombre" name="Nombre">
                                 </div>
+
                                 <div class="form-group col-sm-6">
                                     <label for="txtCorreo">Correo</label>
                                     <input type="email" class="form-control form-control-sm input-validar" id="txtCorreo" name="Correo">
                                 </div>
                             </div>
                             <div class="form-row">
+
                                 <div class="form-group col-sm-6">
                                     <label for="txtTelefono">Telefono</label>
                                     <input type="text" class="form-control form-control-sm input-validar" id="txtTelefono" name="Telefono">
                                 </div>
+
                                 <div class="form-group col-sm-6">
                                     <label for="cboRol">Rol</label>
                                     <select class="form-control form-control-sm" id="cboRol">
-                                        <option value="1">Administrador</option>
+                                       
                                     </select>
                                 </div>
+
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-sm-6">

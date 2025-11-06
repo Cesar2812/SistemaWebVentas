@@ -45,7 +45,7 @@ public class FireBaseService:IFireBaseService
                     AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
                     ThrowOnCancel = true //si ocurre error cancela
                 }
-            ).Child(config[destinationFolder]).Child(config[fileName]).PutAsync(streamFile, cancellation.Token);
+            ).Child(config[destinationFolder]).Child(fileName).PutAsync(streamFile, cancellation.Token);
 
             urlImage = await task;
         }
