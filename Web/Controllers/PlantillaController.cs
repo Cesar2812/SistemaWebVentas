@@ -4,10 +4,10 @@ namespace Web.Controllers
 {
     public class PlantillaController : Controller
     {
-        public IActionResult SendPass(string email, string pass)
+        public IActionResult SendPass(string correo, string clave)
         {
-            ViewData["Correo"] = email;
-            ViewData["Clave"]=pass;
+            ViewData["correo"] = correo;
+            ViewData["clave"]=clave;
             ViewData["Url"] = $"{this.Request.Scheme}://{this.Request.Host}";//esquema https del host del sistema y dominio
 
             return View();

@@ -26,7 +26,7 @@ public class CorreoService:ICorreoService
 
             var correo = new MailMessage()
             {
-                From= new MailAddress(config["correo"], config["SistemaWebVentas.com"]),
+                From= new MailAddress(config["correo"], config["alias"]),
                 Subject=asunto,
                 Body=mensaje,
                 IsBodyHtml=true //estrutura html en el body del correo

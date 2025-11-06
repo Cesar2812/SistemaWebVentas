@@ -10,7 +10,7 @@ namespace Web.Controllers;
 
 public class AdministracionController : Controller
 {
-    private readonly IUsuarioService _usuarioService;
+    private readonly IUsuarioService _usuarioService;//servicio de usuario 
     private readonly IMapper _mapper;
     private readonly IRoleService _roleService;
 
@@ -42,7 +42,7 @@ public class AdministracionController : Controller
     [HttpGet]
     public async Task<IActionResult> ListUsers()
     {
-        List<VMUsuario> vmLisUsers = _mapper.Map<List<VMUsuario>>(await _usuarioService.List());//convietriendo la lista de roles a VM
+        List<VMUsuario> vmLisUsers = _mapper.Map<List<VMUsuario>>(await _usuarioService.List());//convietriendo la lista de usuarios a VM
         return StatusCode(StatusCodes.Status200OK, new { data=vmLisUsers});//objc de C#
     }
 
