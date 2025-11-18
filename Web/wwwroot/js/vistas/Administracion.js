@@ -14,10 +14,12 @@ const MODELO_BASE =
 
 let tablaData;
 
-$(document).ready(function () {
-
+//documento listo
+$(document).ready(function ()
+{
+    //para hacer solcitudes
     fetch("/Administracion/ListRoles").then(response => {
-        return response.ok ? response.json() : Promise.reject(response)//si se devuelve la info retorna el json si no cancela la promesa
+        return response.ok ? response.json() : Promise.reject(response)//si se devuelve la info de forma correcta retorna el json si no cancela la promesa
     }).then(responseJson => {
         //si existen elementos en el Json
         if (responseJson.length>0)
@@ -35,9 +37,7 @@ $(document).ready(function () {
 
 
 
-
-
-
+    //tabla de Usuarios
     tablaData=$('#tbdata').DataTable({
         responsive: true,
          "ajax": {
@@ -93,7 +93,7 @@ $(document).ready(function () {
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
         },
-    });
+    }); 
 })
 
 
@@ -124,9 +124,9 @@ $("#btnNuevo").click(function () {
 
 $("#btnGuardar").click(function ()
 {
-    //valdando campos
-    const inputs = $("input.input-validar").serializeArray();
-    const inputs_sin_valor = inputs.filter((item)=>item.value.trim() =="")
+    //validando campos
+    const inputs = $("input.input-validar").serializeArray();//imputs con clase validar
+    const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")//obtiene los inputs que estan vacios
 
     if (inputs_sin_valor.length > 0)
     {
@@ -191,7 +191,9 @@ $("#btnGuardar").click(function ()
             return response.ok ? response.json() : Promise.reject(response)//si se devuelve la respuesta retorna el json si no cancela la promesa
         }).then(responseJson => {
             if (responseJson.estado) {
+
                 tablaData.row.add(responseJson.objeto).draw(false)
+
                 $("#modalData").modal("hide")
                 swal("Listo!", "Usuario Creado", "success")
             } else {
@@ -288,8 +290,8 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
         }
     }
     )
-
- 
-
-
 }) 
+
+
+//Negogio
+
