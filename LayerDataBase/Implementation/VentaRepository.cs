@@ -67,7 +67,7 @@ namespace LayerDataBase.Implementation
 
         public async Task<List<DetalleVenta>> Report(DateTime fechaInicio, DateTime fechaFin)
         {
-            //detalle para la factura
+            //reporte de venta por rango de fecha
             List<DetalleVenta> listaResumen = await _dbVentaContext.DetalleVenta
                 .Include(v => v.IdVentaNavigation).ThenInclude(u => u.IdUsuarioNavigation)
                 .Include(v => v.IdVentaNavigation).ThenInclude(tdv => tdv.IdTipoDocumentoVentaNavigation).
