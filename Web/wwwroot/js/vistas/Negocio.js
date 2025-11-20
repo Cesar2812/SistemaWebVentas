@@ -11,9 +11,8 @@
         if (responseJson.estado) {
 
             const objNegocio = responseJson.objeto;
-
             $("#txtNumeroDocumento").val(objNegocio.numeroDocumento);
-            $("#txtRazonSocial").val(objNegocio.razonSocial);
+            $("#txtRazonSocial").val(objNegocio.nombre);
             $("#txtCorreo").val(objNegocio.correo);
             $("#txtDireccion").val(objNegocio.direccion);
             $("#txTelefono").val(objNegocio.telefono);
