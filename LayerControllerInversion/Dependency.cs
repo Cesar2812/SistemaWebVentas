@@ -39,6 +39,8 @@ public static class Dependency
         services.AddScoped<INegocioService, NegocioService>();
 
         services.AddScoped<ICategoriaService, CategoriaService>();
+
+        services.AddScoped<IProductoService, ProductoService>();
     }
 
 }

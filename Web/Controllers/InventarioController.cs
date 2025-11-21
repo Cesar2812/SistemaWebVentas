@@ -4,6 +4,7 @@ using Web.Models.ViewModels;
 using Web.Utilities.Response;
 using LayerBusiness.Interface;
 using LayerEntity;
+using Newtonsoft.Json;
 
 
 
@@ -12,10 +13,12 @@ namespace Web.Controllers;
 public class InventarioController : Controller
 {
     private readonly ICategoriaService _categoriaService;
+    private readonly IProductoService _productoService;
     private readonly IMapper _mapper;
-    public InventarioController(ICategoriaService categoriaService, IMapper mapper)
+    public InventarioController(ICategoriaService categoriaService, IMapper mapper, IProductoService productoService)
     {
         _categoriaService = categoriaService;
+        _productoService = productoService;
         _mapper = mapper;
     }
 
@@ -103,6 +106,98 @@ public class InventarioController : Controller
     public IActionResult Productos()
     {
         return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ListaProductos()
+    {
+        List<VMProducto> vmProducto = _mapper.Map<List<VMProducto>>(await _productoService.ListProduct());
+        return StatusCode(StatusCodes.Status200OK, new { data = vmProducto });
+    } 
+
+
+    [HttpPost]
+    public async Task<IActionResult> CrearProducto([FromForm] IFormFile imagen, [FromForm] string modelo)
+    {
+
+        GenericResponse<VMProducto> gResponse = new();//deveulve un vieModel
+
+        try
+        {
+            VMProducto? vMProducto=  JsonConvert.DeserializeObject<VMProducto>(modelo);
+            string nombreImagen = string.Empty;
+            Stream imageStream = null;
+
+            if(imagen != null)
+            {
+                string nombre_en_codigo= Guid.NewGuid().ToString("N");//codigo aleatorio para el nombre
+                string extension = Path.GetExtension(imagen.FileName);
+                nombreImagen = string.Concat(nombre_en_codigo, extension);
+                imageStream = imagen.OpenReadStream();
+            }
+
+            Producto productoCreado= await _productoService.Create(_mapper.Map<Producto>(vMProducto), imageStream,nombreImagen);
+
+            vMProducto= _mapper.Map<VMProducto>(productoCreado);
+            gResponse.Estado = true;
+            gResponse.objeto= vMProducto;
+        }
+        catch (Exception ex)
+        {
+            gResponse.Estado = false;
+            gResponse.Mensaje = ex.Message;
+          
+        }
+        return StatusCode(StatusCodes.Status200OK, gResponse);
+
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> EditarProducto([FromForm] IFormFile imagen, [FromForm] string modelo)
+    {
+        GenericResponse<VMProducto> gResponse = new();//deveulve un vieModel
+        try
+        {
+            VMProducto? vMProducto = JsonConvert.DeserializeObject<VMProducto>(modelo);
+           
+            Stream imageStream = null;
+            string nombreImagen = string.Empty;
+           
+            if (imagen != null)
+            {
+                string nombre_en_codigo = Guid.NewGuid().ToString("N");//codigo aleatorio para el nombre
+                string extension = Path.GetExtension(imagen.FileName);
+                nombreImagen = string.Concat(nombre_en_codigo, extension);
+                imageStream = imagen.OpenReadStream();
+            }
+            Producto productoEditado = await _productoService.Update(_mapper.Map<Producto>(vMProducto), imageStream,nombreImagen);
+            vMProducto = _mapper.Map<VMProducto>(productoEditado);
+            gResponse.Estado = true;
+            gResponse.objeto = vMProducto;
+        }
+        catch (Exception ex)
+        {
+            gResponse.Estado = false;
+            gResponse.Mensaje = ex.Message;
+        }
+        return StatusCode(StatusCodes.Status200OK, gResponse);
+    }
+
+
+    [HttpDelete]
+    public async Task<IActionResult> EliminarProducto(int idProducto)
+    {
+        GenericResponse<string> gResponse = new();
+        try
+        {
+            gResponse.Estado = await _productoService.Delete(idProducto);
+        }
+        catch (Exception ex)
+        {
+            gResponse.Estado = false;
+            gResponse.Mensaje = ex.Message;
+        }
+        return StatusCode(StatusCodes.Status200OK, gResponse);
     }
     #endregion
 }

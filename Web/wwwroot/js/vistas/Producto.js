@@ -1,28 +1,78 @@
-﻿const MODELO_BASE =
-{
-    idCategoria: 0,
-    descripcion: "",
-    esActivo: 1,
-} 
+﻿//Modulo de Usuarios
+//ListarUsuario
 
+const MODELO_BASE =
+{
+    idProducto: 0,
+    codigoBarra: "",
+    marca: "",
+    descripcion: "",
+    idCategoria: 0,
+    nombreCategoria: "",
+    stock: 0,
+    urlImagen: "",
+    precio: 0,
+    esActivo: 1,
+}
 
 let tablaData;
 
 //documento listo
+
 $(document).ready(function () {
-    
-    //tabla de Catgeorias
+
+    $("#txtPrecio").on("input", function () {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+
+        if ((this.value.match(/\./g) || []).length > 1) {
+            this.value = this.value.substring(0, this.value.length - 1);
+        }
+    });
+
+
+
+
+    //para hacer solcitudes cargando categorias en el combo
+    fetch("/Inventario/ListaCategorias").then(response => {
+        return response.ok ? response.json() : Promise.reject(response)//si se devuelve la info de forma correcta retorna el json si no cancela la promesa
+    }).then(responseJson => {
+        //si existen elementos en el Json
+        if (responseJson.data.length > 0) {
+            $("<option>").attr({ "value": "0", "disabled": "true" }).text("Seleccione Una").appendTo("#cboCategoria");
+            responseJson.data.forEach((item) => {
+                $("#cboCategoria").append(
+                    $("<option>").val(item.idCategoria).text(item.descripcion)
+                )
+
+            })
+
+        }
+    })
+
+
+
+    //tabla de Productos
     tablaData = $('#tbdata').DataTable({
         responsive: true,
         "ajax": {
-            "url": '/Inventario/ListaCategorias',
+            "url": '/Inventario/ListaProductos',
             "type": "GET",
             "datatype": "json"
         },
         "columns": [
-            { "data": "idCategoria", "visible": false, "searchable": false },
-           
+            { "data": "idProducto", "visible": false, "searchable": false },
+            {
+                "data": "urlImagen", render: function (data) {
+                    return `<img style="height:60px" src=${data} class="rounded mx-auto d-block" />`
+
+                }
+            },
+            { "data": "codigoBarra" },
+            { "data": "marca" },
             { "data": "descripcion" },
+            { "data": "nombreCategoria" },
+            { "data": "stock" },
+            { "data": "precio", render: function (data) { return `${data.toFixed(2)}`; } },
             {
                 "data": "esActivo", render: function (data) {
                     if (data == 1) {
@@ -49,7 +99,7 @@ $(document).ready(function () {
                 text: 'Exportar Excel',
                 extend: 'excelHtml5',
                 title: '',
-                filename: 'Reporte Categorias',
+                filename: 'Reporte Usuarios',
                 exportOptions: {
                     columns: [2, 3, 4, 5, 6]
                 }
@@ -63,48 +113,96 @@ $(document).ready(function () {
 
 
 
+
+//crearUsuario y Editar Usuario
+
+//valor por defecto si esta vacio el modelo
 function MostrarModal(modelo = MODELO_BASE) {
-    $("#txtId").val(modelo.idCategoria)
-    $("#txtDescripcion").val(modelo.descripcion)
+    $("#txtId").val(modelo.idProducto)
+    $("#txtCodigoBarra").val(modelo.codigoBarra)
+    $("#txtMarca").val(modelo.marca)
+    $("#txtDescripcion").val(modelo.descripcion),
+    $("#cboCategoria").val(modelo.idCategoria)
+    $("#txtStock").val(modelo.stock)
+    $("#txtPrecio").val(modelo.precio)
     $("#cboEstado").val(modelo.esActivo)
-   
+    $("#txtImagen").val("")
+    $("#imgProducto").attr("src", modelo.urlImagen)
 
     $("#modalData").modal("show")
 }
+
 
 $("#btnNuevo").click(function () {
     MostrarModal();
 })
 
 
-
 $("#btnGuardar").click(function () {
-   
-    if ($("#txtDescripcion").val().trim() == "")
-    {
-        const mensaje = `Debe Completar el campo Descripcion:`;
+    //validando campos
+    const inputs = $("input.input-validar").serializeArray();//imputs con clase validar
+    const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")//obtiene los inputs que estan vacios
+
+    if (inputs_sin_valor.length > 0) {
+        const mensaje = `Debe Completar el campo: "${inputs_sin_valor[0].name}"`;
         toastr.options.timeOut = 1300;          // 1.5 segundos
         toastr.options.extendedTimeOut = 500;
         toastr.error("", mensaje)
-        $("#txtDescripcion").focus();
+        $(`input[name="${inputs_sin_valor[0].name}"]`).focus();
         return;
     }
-    
+
+    //validando rol
+    const categoriaSeleccionada = $("#cboCategoria").val();
+
+    if (categoriaSeleccionada === "0" || categoriaSeleccionada === null) {
+        const mensaje = "Debe seleccionar una Categoria ";
+        toastr.options.timeOut = 1300;
+        toastr.options.extendedTimeOut = 500;
+        toastr.error("", mensaje);
+        $("#cboCategoria").focus();
+        return;
+    }
+
+    //validando campo foto
+    const fotoInput = $("#txtImagen")[0];
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        const mensaje = "Debe seleccionar una foto";
+        toastr.options.timeOut = 1300;
+        toastr.options.extendedTimeOut = 500;
+        toastr.error("", mensaje);
+        $("#txtImagen").focus();
+        return;
+    }
 
     const modelo = structuredClone(MODELO_BASE)//copiando el modelobase
 
-    modelo["idCategoria"] = parseInt($("#txtId").val())
+    modelo["idProducto"] = parseInt($("#txtId").val())
+    modelo["codigoBarra"] = $("#txtCodigoBarra").val()
+    modelo["marca"] = $("#txtMarca").val()
     modelo["descripcion"] = $("#txtDescripcion").val()
+    modelo["idCategoria"] = $("#cboCategoria").val()
+    modelo["stock"] = $("#txtStock").val()
+    modelo["precio"] = $("#txtPrecio").val()
     modelo["esActivo"] = $("#cboEstado").val()
+
+    const inputFoto = document.getElementById("txtImagen") 
+
+    console.log(modelo);
+
+    const formData = new FormData();
+
+
+    formData.append("imagen", inputFoto.files[0])//agregando la foto a la data
+    formData.append("modelo", JSON.stringify(modelo))
 
     $("#modalData").find("div.modal-content").LoadingOverlay("show");
 
     //creando un recurso 
-    if (modelo.idCategoria == 0) {
-        fetch("/Inventario/CrearCategoria", {
+    if (modelo.idProducto == 0) {
+        fetch("/Inventario/CrearProducto", {
             method: "POST",
-            headers: {"Content-Type":"application/json;charset=utf-8"},
-            body: JSON.stringify(modelo),
+            body: formData
         }).then(response => {
 
             $("#modalData").find("div.modal-content").LoadingOverlay("hide");
@@ -115,17 +213,16 @@ $("#btnGuardar").click(function () {
                 tablaData.row.add(responseJson.objeto).draw(false)
 
                 $("#modalData").modal("hide")
-                swal("Listo!", "Categoria Creada", "success")
+                swal("Listo!", "Producto Creado", "success")
             } else {
                 swal("Error!", responseJson.mensaje, "error")
             }
         })
 
     } else {
-        fetch("/Inventario/Editar", {
+        fetch("/Inventario/EditarProducto", {
             method: "PUT",
-            headers: { "Content-Type": "application/json;charset=utf-8" },
-            body: JSON.stringify(modelo),
+            body: formData
         }).then(response => {
 
             $("#modalData").find("div.modal-content").LoadingOverlay("hide");
@@ -135,13 +232,15 @@ $("#btnGuardar").click(function () {
                 tablaData.row(filaSeleccionada).data(responseJson.objeto).draw(false);
                 filaSeleccionada = null;
                 $("#modalData").modal("hide")
-                swal("Listo!", "Categoria Editada", "success")
+                swal("Listo!", "Produdcto Editado", "success")
             } else {
                 swal("Error!", responseJson.mensaje, "error")
             }
         })
 
     }
+
+
 })
 
 
@@ -158,11 +257,12 @@ $("#tbdata tbody").on("click", ".btn-editar", function () {
     const data = tablaData.row(filaSeleccionada).data();
 
     MostrarModal(data);
-}) 
 
 
+})
 
-//eliminarCategoria
+
+//eliminarUsuario
 $("#tbdata tbody").on("click", ".btn-eliminar", function () {
     let fila;
     if ($(this).closest("tr").hasClass("child")) {
@@ -176,7 +276,7 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
 
     swal({
         title: "Esta Seguro?",
-        text: `Eliminar la Categoria: ${data.descripcion}`,
+        text: `Eliminar al Producto: ${data.descripcion}`,
         type: "warning",
         showCancelButton: true,
         confirmButtonClass: "btn-danger",
@@ -188,7 +288,7 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
         if (respuesta == true) {
             $(".showSweetAlert").LoadingOverlay("show");
 
-            fetch(`/Inventario/Eliminar?idCategoria=${data.idCategoria}`, {
+            fetch(`/Inventario/EliminarProducto?idProducto=${data.idProducto}`, {
                 method: "DELETE",
             }).then(response => {
 
@@ -198,7 +298,7 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
                 if (responseJson.estado) {
                     tablaData.row(fila).remove().draw()
 
-                    swal("Listo!", "Categoria Eliminada", "success")
+                    swal("Listo!", "Producto Eliminado", "success")
                 } else {
                     swal("Error!", responseJson.mensaje, "error")
                 }
