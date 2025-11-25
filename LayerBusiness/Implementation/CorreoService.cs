@@ -8,7 +8,7 @@ namespace LayerBusiness.Implementation;
 
 public class CorreoService:ICorreoService
 {
-    private readonly IGenericRepository<Configuracion> _repository;//para buscar los datos de configuracion en base de datos
+    private readonly IGenericRepository<Configuracion> _repository;//para buscar los datos de configuracion en base de datos haciendo enfasis a la tabla
 
     public CorreoService(IGenericRepository<Configuracion> repository)
     {
@@ -29,7 +29,7 @@ public class CorreoService:ICorreoService
                 From= new MailAddress(config["correo"], config["alias"]),
                 Subject=asunto,
                 Body=mensaje,
-                IsBodyHtml=true //estrutura html en el body del correo
+                IsBodyHtml=true //estrutura html en el body del correo osea es true
             };
 
             correo.To.Add(new MailAddress(correoDestino));

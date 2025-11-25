@@ -6,7 +6,7 @@ namespace LayerBusiness.Implementation;
 
 public class CategoriaService : ICategoriaService
 {
-    private readonly IGenericRepository<Categoria> _categoriaRepository;
+    private readonly IGenericRepository<Categoria> _categoriaRepository;//conexion con el repositorio generico de base de datos 
 
     public CategoriaService(IGenericRepository<Categoria> categoriaRepository)
     {
@@ -19,7 +19,6 @@ public class CategoriaService : ICategoriaService
         IQueryable<Categoria> query = await _categoriaRepository.Consult();
 
         return query.ToList();
-
     }
 
     public async Task<Categoria> CreateCategoriaAsync(Categoria categoria)
