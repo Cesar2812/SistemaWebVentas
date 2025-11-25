@@ -10,10 +10,11 @@ namespace LayerBusiness.Implementation;
 
 public class UsuarioService : IUsuarioService
 {
-    private readonly IGenericRepository<Usuario> _repository;//configurando la clase generica para usarse con usuario 
-    private readonly IFireBaseService _fireBaseService;
-    private readonly IUtilitiesService _utilitiesService;
-    private readonly ICorreoService _correoService;
+
+    private readonly IGenericRepository<Usuario> _repository;//configurando la clase generica para usarse con usuario y conexion a base de datos
+    private readonly IFireBaseService _fireBaseService;//servicio de firebase
+    private readonly IUtilitiesService _utilitiesService;//Servicio de utilidades para el hash de claves y generacion
+    private readonly ICorreoService _correoService;//servicio de envio de correo al crear un usuario o recuperar clave 
 
     public UsuarioService(IGenericRepository<Usuario> repository, IFireBaseService fireBaseService,
         IUtilitiesService utilitiesService, ICorreoService correoService)
@@ -29,6 +30,7 @@ public class UsuarioService : IUsuarioService
         IQueryable<Usuario> query = await _repository.Consult();
         return query.Include(rol=> rol.IdRolNavigation).ToList(); 
     }
+
 
     public async Task<Usuario> Create(Usuario entityUser, Stream photo = null, string namePhoto = "", string urlPlantillaCorreo = "")
     {
@@ -52,6 +54,8 @@ public class UsuarioService : IUsuarioService
 
             Usuario usuarioCreate= await _repository.Create(entityUser);
 
+
+
             if (usuarioCreate.IdUsuario == 0)
             {
                 throw new TaskCanceledException("No se Pudo Crear el Usuario");
@@ -62,7 +66,7 @@ public class UsuarioService : IUsuarioService
                 urlPlantillaCorreo = urlPlantillaCorreo.Replace("[correo]", usuarioCreate.Correo).Replace("[clave]", passGenerate);//se remplaza en el body de la palntilla
 
                 string htmlCorreo = "";
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlPlantillaCorreo);//peticion.mandado el recurso que es la plantilla
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlPlantillaCorreo);//peticion mandando el recurso que es la plantilla con datos reemplazados
                 HttpWebResponse response=(HttpWebResponse)request.GetResponse();
 
                 if (response.StatusCode == HttpStatusCode.OK)
@@ -87,11 +91,10 @@ public class UsuarioService : IUsuarioService
                     }
                 }
 
-                //se obtiene el html
+                //se obtiene el html osea la plantilla
                 if (htmlCorreo != "")
                 {
                     await _correoService.SendEmail(usuarioCreate.Correo, "CuentaCreada", htmlCorreo);//se envia el correo
-
                 }
             }
             IQueryable<Usuario> query = await _repository.Consult(u => u.IdUsuario == usuarioCreate.IdUsuario);

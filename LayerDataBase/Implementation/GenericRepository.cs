@@ -5,9 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LayerDataBase.Implementation;
 
+
+//clase generica que implementa la interfaz generica que permite realizar operaciones CRUD genericas sobre una entidad en especifico
 public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
     private readonly VentaContext _dbVentaContext;
+
 
     public GenericRepository(VentaContext dbVentaContext)
     {

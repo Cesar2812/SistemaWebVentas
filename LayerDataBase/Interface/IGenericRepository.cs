@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace LayerDataBase.Interface;
 
-public interface IGenericRepository<TEntity> where TEntity : class //para todas las entidades
+public interface IGenericRepository<TEntity> where TEntity : class //para todas las entidades  que seran implementadas sobre esta interface
 {
-    Task<TEntity> Get(Expression<Func<TEntity, bool>> filter);//como parametro una expresion labda para filtrar 
+    Task<TEntity> Get(Expression<Func<TEntity, bool>> filter);//como parametro una expresion labda para filtrar siempre sera regla pasar el filtro al usar este metdo
 
     Task<TEntity> Create(TEntity entity);
 
