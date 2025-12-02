@@ -48,7 +48,7 @@ public class VentaService : IVentaService
         fechaInicio=fechaInicio is null? "": fechaInicio;
         fechaFin = fechaFin is null ? "" : fechaFin;
 
-        if(fechaInicio !="" && fechaFin != "")//osea se obtienen las fechas
+        if(fechaInicio !="" && fechaFin != "")//se obtienen las fechas como parametrizacion
         {
             DateTime inicio = DateTime.ParseExact(fechaInicio,"dd/MM/yyyy", new CultureInfo("es-NI"));
             DateTime fin = DateTime.ParseExact(fechaFin, "dd/MM/yyyy", new CultureInfo("es-NI"));

@@ -31,6 +31,8 @@ public class VentaController : Controller
         return View();
     }
 
+
+
     [HttpGet]
     public async Task<IActionResult> ObtenerTipoDocumentos()
     {
