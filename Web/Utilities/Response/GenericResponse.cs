@@ -7,7 +7,7 @@
 
         public string? Mensaje { get; set; }
 
-        public TObject? objeto { get; set; }
+        public TObject? objeto { get; set; }//puede ser cualquier objeto de cualquier tipo
 
         public List<TObject>? ListObject { get; set; }
     }
