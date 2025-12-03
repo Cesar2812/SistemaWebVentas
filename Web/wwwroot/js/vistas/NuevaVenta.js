@@ -15,7 +15,7 @@ $(document).ready(function () {
             
             responseJson.forEach((item) => {
                 $("#cboTipoDocumentoVenta").append(
-                    $("<option>").val(item.idTtipoDocumentoVenta).text(item.descripcion)
+                    $("<option>").val(item.idTipoDocumentoVenta).text(item.descripcion)
                 )
             })
 
@@ -143,7 +143,6 @@ $("#cboBuscarProducto").on("select2:select", function (e) {
         if (cantidad === "") {
             toastr.warning("", "Necesita ingresar la cantidad");
             return false;
-
         }
         if (isNaN(parseInt(cantidad))) {
             toastr.warning("", "Ingrese un valor numérico válido");
@@ -210,14 +209,65 @@ function MostrarPrecioProductos() {
 
 }
 
+
 //funcionalidad boton eliminar en el detalle de venta
 $(document).on("click","button.btn-eliminar", function () {
     const _idProducto = $(this).data("idProducto")
 
-    productosParaVenta = productosParaVenta.filter(p => p.idProducto != _idProducto);
+    productosParaVenta = productosParaVenta.filter(p => p.idProducto != _idProducto);//devuelve todos los productos menos el que se desea eliminar u omitir
 
     MostrarPrecioProductos();
 })
 
 
+$("#btnTerminarVenta").on("click", function ()
+{
+    if (productosParaVenta.length < 1)//validando que existan productos en el detalle de venta
+    {
+        const mensaje = `Debe de ingresar productos`;
+        toastr.options.timeOut = 1300;          // 1.5 segundos
+        toastr.options.extendedTimeOut = 500;
+        toastr.warning("", mensaje)
+        return false;
+    }
+
+    //creando el objeto para mandarlo al endpoint
+    const vmDetalleVEnta = productosParaVenta;
+
+    const venta = {
+        idTipoDocumentoVenta: $("#cboTipoDocumentoVenta").val(),
+        documentoCliente: $("#txtDocumentoCliente").val(),
+        nombreCliente: $("#txtNombreCliente").val(),
+        subTotal: $("#txtSubTotal").val(),
+        impuestoTotal: $("#txtIGV").val(),
+        total: $("#txtTotal").val(),
+        detalleVenta: vmDetalleVEnta
+    }
+    console.log(venta);
+    $("#btnTerminarVenta").LoadingOverlay("show");
+
+
+    fetch("/Venta/RegistrarVenta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify(venta),
+    }).then(response => {
+        $("#btnTerminarVenta").LoadingOverlay("hide");
+        return response.ok ? response.json() : Promise.reject(response)//si se devuelve la info de forma correcta retorna el json si no cancela la promesa
+    }).then(responseJson => {
+        if (responseJson.estado) {
+            productosParaVenta = [];//limpiando el array de productos para nueva venta
+            MostrarPrecioProductos();
+            $("#txtDocumentoCliente").val("")
+            $("#txtNombreCliente").val("")
+            $("#cboTipoDocumentoVenta").val($("#cboTipoDocumentoVenta option:first").val())
+
+            swal("Venta Registrada!", `Numero Venta:${responseJson.objeto.numeroVenta}`, "success")
+
+        } else {
+            swal("Error!", "No se pudo registrar la venta", "error")
+        }
+    })
+
+})
 
