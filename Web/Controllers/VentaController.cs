@@ -10,7 +10,7 @@ namespace Web.Controllers;
 
 public class VentaController : Controller
 {
-
+    //depencias de abstraccion de servicios
     private readonly ITipoDocumentoVentaService _tipoDocumentoService;
     private readonly IVentaService _ventaService;
     private readonly IMapper _mapper;
@@ -48,6 +48,7 @@ public class VentaController : Controller
     }
 
 
+    //endpoint para registrar la venta
     [HttpPost]
     public async  Task<IActionResult> RegistrarVenta([FromBody] VMVenta vmVenta)
     {
@@ -72,19 +73,18 @@ public class VentaController : Controller
 
 
     #region HistorialVenta
+    //vista historial de ventas
     public IActionResult HistorialVenta()
     {
         return View();
     }
 
-
+    //endpoint para obtener el historial de ventas
     [HttpGet]
     public async Task<IActionResult> Historial(string numeroVenta, string fechaInicio, string fechaFin)
     {
         List<VMVenta> vmListaVentas = _mapper.Map<List<VMVenta>>(await _ventaService.Historial(numeroVenta, fechaInicio, fechaFin));
         return StatusCode(StatusCodes.Status200OK, vmListaVentas);
     }
-
-
     #endregion
 }
