@@ -66,6 +66,7 @@ public class VentaRepository : GenericRepository<Venta>, IVentaRepository
         List<DetalleVenta> listaResumen = await _dbVentaContext.DetalleVenta
             .Include(v => v.IdVentaNavigation).ThenInclude(u => u.IdUsuarioNavigation)
             .Include(v => v.IdVentaNavigation).ThenInclude(tdv => tdv.IdTipoDocumentoVentaNavigation).
+            Include(dv => dv.IdProductoNavigation).
             Where(dv => dv.IdVentaNavigation.FechaRegistro.Value.Date >= fechaInicio.Date && dv.IdVentaNavigation.FechaRegistro.Value.Date <= fechaFin.Date).
             ToListAsync();
 

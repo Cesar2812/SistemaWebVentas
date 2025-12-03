@@ -109,7 +109,7 @@ public class AutoMapperProfile:Profile
         .ForMember(destino => destino.SubTotalVenta, opt => opt.MapFrom(origen => Convert.ToString(origen.IdVentaNavigation.SubTotal.Value, new CultureInfo("es-NI"))))
         .ForMember(destino => destino.ImpuestoTotalVenta, opt => opt.MapFrom(origen => Convert.ToString(origen.IdVentaNavigation.ImpuestoTotal.Value, new CultureInfo("es-NI"))))
         .ForMember(destino => destino.TotalVenta, opt => opt.MapFrom(origen => Convert.ToString(origen.IdVentaNavigation.Total.Value, new CultureInfo("es-NI"))))
-        .ForMember(destino => destino.Producto, opt => opt.MapFrom(origen => origen.IdProductoNavigation.Descripcion))
+        .ForMember(destino => destino.DescripcionProducto, opt => opt.MapFrom(origen => origen.IdProductoNavigation.Descripcion))
         .ForMember(destino => destino.Precio, opt => opt.MapFrom(origen => Convert.ToString(origen.Precio, new CultureInfo("es-NI"))))
         .ForMember(destino => destino.Total, opt => opt.MapFrom(origen => Convert.ToString(origen.Total, new CultureInfo("es-NI"))));
         #endregion
