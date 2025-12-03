@@ -22,7 +22,7 @@ public class VMReporteVenta
 
     public string? TotalVenta { get; set; }
 
-    public string? Producto { get; set; }
+    public string? DescripcionProducto { get; set; }
 
     public int Cantidad { get; set; }
 
