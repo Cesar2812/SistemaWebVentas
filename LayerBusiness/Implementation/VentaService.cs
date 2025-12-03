@@ -70,6 +70,8 @@ public class VentaService : IVentaService
         } 
     }
 
+
+
     public async Task<Venta> Detalle(string numeroVenta)
     {
         IQueryable<Venta> query = await _repositorioVenta.Consult(v=> v.NumeroVenta==numeroVenta);
@@ -78,6 +80,9 @@ public class VentaService : IVentaService
                     .Include(dv=>dv.DetalleVenta)
                     .First();//la primera o por defecto 
     }
+
+
+
 
   
     public async Task<List<DetalleVenta>> ReporteVenta(string fechaInicio, string fechaFin)

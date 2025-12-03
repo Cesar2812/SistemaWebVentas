@@ -1,5 +1,8 @@
 using Web.Utilities.AutoMapper;
 using LayerControllerInversion;
+using Web.Utilities.Extensiones;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,11 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();//para poder reali
 builder.Services.DependencyInyection(builder.Configuration);//configuracion a la capa de inyeccion
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));//inyectando configuracion de mapeo
 
+
+var context = new CustomAssemblyLoadContext();
+context.LoadUnmanagedLibrary(Path.Combine(Directory.GetCurrentDirectory(), "Utilities/PdfLibrary/libwkhtmltox.dll"));//obteniendo el directiorio del proyecto
+
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));//sincronizando el conventidor a pdf para poderlo crear
 
 var app = builder.Build();
 
