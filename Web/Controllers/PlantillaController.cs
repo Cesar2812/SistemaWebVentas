@@ -30,9 +30,9 @@ namespace Web.Controllers
             return View();
         }
 
-        public IActionResult RestorePass(string pass)
+        public IActionResult RestorePass(string clave)
         {
-            ViewData["Clave"] = pass;
+            ViewData["clave"] = clave;
             return View();
         } 
 

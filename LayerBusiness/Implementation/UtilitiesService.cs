@@ -18,7 +18,10 @@ namespace LayerBusiness.Implementation
 
         public string ConvertSha256(string text)
         {
-           StringBuilder sb= new StringBuilder();
+            if (string.IsNullOrEmpty(text))
+                return string.Empty; 
+
+            StringBuilder sb= new StringBuilder();
 
             using (SHA256 hash= SHA256Managed.Create())
             {
