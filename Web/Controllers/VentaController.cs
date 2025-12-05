@@ -7,10 +7,12 @@ using LayerBusiness.Interface;
 
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Web.Controllers;
 
-
+[Authorize]
 public class VentaController : Controller
 {
     //depencias de abstraccion de servicios
@@ -63,7 +65,10 @@ public class VentaController : Controller
         GenericResponse<VMVenta> gResponse = new GenericResponse<VMVenta>();
         try
         {
-            vmVenta.IdUsuario = 9; //Temporalmente hasta tener el sistema de login
+            ClaimsPrincipal claimsUser = HttpContext.User;
+            //obteniendo el usuario Logueado
+            string idUsuario = claimsUser.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            vmVenta.IdUsuario = Convert.ToInt32(idUsuario);
             Venta ventaRegistrar = _mapper.Map<Venta>(vmVenta);
             Venta ventaRegistrada = await _ventaService.Registrar(ventaRegistrar);
             gResponse.Estado = true;
