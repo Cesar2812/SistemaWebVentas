@@ -2,9 +2,11 @@
 using Web.Models.ViewModels;
 using Web.Utilities.Response;
 using LayerBusiness.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers
 {
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly IDashboardService _dashboardService;

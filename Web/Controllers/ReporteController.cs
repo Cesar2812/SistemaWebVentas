@@ -2,9 +2,10 @@
 using AutoMapper;
 using Web.Models.ViewModels;
 using LayerBusiness.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers;
-
+[Authorize]
 public class ReporteController : Controller
 {
     private readonly IMapper _mapper;

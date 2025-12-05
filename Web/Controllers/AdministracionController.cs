@@ -5,12 +5,15 @@ using Web.Utilities.Response;
 using LayerBusiness.Interface;
 using LayerEntity;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Web.Controllers;
 
+[Authorize]
 public class AdministracionController : Controller
 {
-    private readonly IUsuarioService _usuarioService;//servicio de usuario 
+    private readonly IUsuarioService _usuarioService; 
     private readonly IMapper _mapper;
     private readonly IRoleService _roleService;
 
@@ -154,6 +157,83 @@ public class AdministracionController : Controller
     public IActionResult PerfilUser()
     {
         return View();
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> ObtenerUsuario()
+    {
+        GenericResponse<VMUsuario> response = new();
+
+        try
+        {
+            ClaimsPrincipal claimsUsuario = HttpContext.User;   
+
+            string idUsuario=claimsUsuario.Claims.Where(c=>c.Type==ClaimTypes.NameIdentifier).Select(c=>c.Value).SingleOrDefault();
+
+            VMUsuario usuario = _mapper.Map<VMUsuario>(await _usuarioService.GetById(Convert.ToInt32(idUsuario)));
+
+
+            response.Estado = true;
+            response.objeto=usuario;
+        }
+        catch (Exception ex)
+        {
+            response.Estado = false;
+            response.Mensaje = ex.Message;
+        }
+        return StatusCode(StatusCodes.Status200OK, response);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> GuardarPerfil([FromBody] VMUsuario modelo)
+    {
+        GenericResponse<VMUsuario> response = new();
+
+        try
+        {
+            ClaimsPrincipal claimsUsuario = HttpContext.User;
+
+            string idUsuario = claimsUsuario.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+
+            Usuario entidad = _mapper.Map<Usuario>(modelo);
+            entidad.IdUsuario=int.Parse(idUsuario);
+
+            bool resultado = await _usuarioService.SaveProfile(entidad);
+            response.Estado = resultado;
+            
+        }
+        catch (Exception ex)
+        {
+            response.Estado = false;
+            response.Mensaje = ex.Message;
+        }
+        return StatusCode(StatusCodes.Status200OK, response);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> CambiarClave([FromBody] VMCambiarClave modelo)
+    {
+        GenericResponse<bool> response = new();
+
+        try
+        {
+            ClaimsPrincipal claimsUsuario = HttpContext.User;
+
+            string idUsuario = claimsUsuario.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+
+            bool resultado = await _usuarioService.ChangePass(int.Parse(idUsuario),modelo.claveActual,modelo.claveNueva);
+
+            response.Estado = resultado;
+        }
+        catch (Exception ex)
+        {
+            response.Estado = false;
+            response.Mensaje = ex.Message;
+        }
+        return StatusCode(StatusCodes.Status200OK, response);
     }
 
     #endregion

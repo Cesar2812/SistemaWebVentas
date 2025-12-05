@@ -5,11 +5,13 @@ using Web.Utilities.Response;
 using LayerBusiness.Interface;
 using LayerEntity;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 
 
 namespace Web.Controllers;
 
+[Authorize]
 public class InventarioController : Controller
 {
     private readonly ICategoriaService _categoriaService;

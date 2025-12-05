@@ -101,8 +101,12 @@ public class LoginController : Controller
             ViewData["Mensaje"] = null;
         } 
         return View();
+    }  
+
+    public async Task<IActionResult> Salir()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);//terminando la sesion 
+        return RedirectToAction("Acceso", "Login");
     }
-
-
 }
 
