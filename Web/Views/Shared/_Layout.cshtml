@@ -42,72 +42,8 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!--DASHBOARD-->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Dashboard")">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span style="font-size:17px">Dashboard</span>
-                </a>
-            </li>
-
-            <!--ADMINISTRACION-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAdministracion">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span style="font-size:17px">Administración</span>
-                </a>
-                <div id="collapseAdministracion" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("Usuarios", "Administracion")">Usuarios</a>
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("Negocio", "Administracion")">Negocio</a>
-                    </div>
-                </div>
-            </li>
-
-
-            <!--INVENTARIO-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInventario">
-                    <i class="fas fa-fw fa-boxes"></i>
-                    <span style="font-size:17px">Inventario</span>
-                </a>
-                <div id="collapseInventario" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("Categorias", "Inventario")">Categorias</a>
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("Productos", "Inventario")">Productos</a>
-                    </div>
-                </div>
-            </li>
-
-
-            <!--VENTAS-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseVenta">
-                    <i class="fas fa-fw fa-tags"></i>
-                    <span style="font-size:17px">Ventas</span>
-                </a>
-                <div id="collapseVenta" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("NuevaVenta", "Venta")">Nueva Venta</a>
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("HistorialVenta", "Venta")">Historial Venta</a>
-                    </div>
-                </div>
-            </li>
-
-
-            <!--REPORTES-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReportes">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span style="font-size:17px">Reportes</span>
-                </a>
-                <div id="collapseReportes" class="collapse" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" style="font-size:15px" href="@Url.Action("ReporteVentas", "Reporte")">Reporte de Ventas</a>
-                    </div>
-                </div>
-            </li>
-
+            <!-- MENU -->
+            @await Component.InvokeAsync("Menu")
 
             <!-- Divider -->
             <hr class="sidebar-divider" />
