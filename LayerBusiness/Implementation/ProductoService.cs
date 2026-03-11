@@ -9,7 +9,7 @@ namespace LayerBusiness.Implementation;
 public class ProductoService : IProductoService
 {
     private readonly IGenericRepository<Producto> _repositoryProducto;
-    private readonly IFireBaseService _fireBaseService;
+    private readonly IFireBaseService _fireBaseService;//servicio de firebase para subir imagenes a la nube
 
     public ProductoService(IGenericRepository<Producto> repositoryProducto, IFireBaseService fireBaseService)
     {
