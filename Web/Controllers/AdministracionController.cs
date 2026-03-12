@@ -270,18 +270,20 @@ public class AdministracionController : Controller
     public async Task<IActionResult> SaveChangesNegocio([FromForm] IFormFile logo, [FromForm] string model)
     {
         GenericResponse<VMNegocio> gResponse = new GenericResponse<VMNegocio>();
+
         try
         {
             VMNegocio? vmNegocio = JsonConvert.DeserializeObject<VMNegocio>(model);
-            string nombreLogo = "";
+            string nombreLogo = "";//nombre de logo vacio
             Stream? logoStream = null;
             if (logo != null)
             {
                 string nombre_en_codigo = Guid.NewGuid().ToString("N");
                 string extension = Path.GetExtension(logo.FileName);
-                nombreLogo = string.Concat(nombre_en_codigo, extension);
+                nombreLogo = string.Concat(nombre_en_codigo, extension);//formando el nombre del logo
                 logoStream = logo.OpenReadStream();
             }
+
             Negocio negocio_editado = await _negocioService.SaveChanges(_mapper.Map<Negocio>(vmNegocio), logoStream, nombreLogo);
             vmNegocio = _mapper.Map<VMNegocio>(negocio_editado);
             gResponse.Estado = true;
