@@ -58,7 +58,7 @@ $("#btnGuardarCambios").click(function () {
 
     const modeloNegocio = {
         numeroDocumento: $("#txtNumeroDocumento").val(),
-        razonSocial: $("#txtRazonSocial").val(),
+        nombre: $("#txtRazonSocial").val(),
         correo: $("#txtCorreo").val(),
         direccion: $("#txtDireccion").val(),
         telefono: $("#txTelefono").val(),
@@ -66,6 +66,7 @@ $("#btnGuardarCambios").click(function () {
         simboloMoneda: $("#txtSimboloMoneda").val(),
     }  
 
+    
     const inputLogo = document.getElementById("txtLogo");
     const formData = new FormData();
 
